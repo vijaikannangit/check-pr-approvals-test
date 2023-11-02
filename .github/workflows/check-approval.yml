@@ -1,0 +1,37 @@
+name: Check PR Approval
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  check_approval:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      
+      - name: Get PR Reviews
+        id: pr_reviews
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          REVIEWS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+             "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews")
+          echo "::set-output name=reviews::${REVIEWS}"
+        shell: bash
+      
+      - name: Check for Approval
+        run: |
+          REVIEWS="${{ steps.pr_reviews.outputs.reviews }}"
+          if echo "${REVIEWS}" | jq -r '.[] | select(.state == "APPROVED")' > /dev/null; then
+            echo "PR has at least one approval."
+          else
+            echo "PR is not approved."
+            exit 1
+          fi
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
