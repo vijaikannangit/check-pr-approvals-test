@@ -1,7 +1,17 @@
 name: Auto-Merge PR on Approval
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
+    inputs: 
+      pr_request_number: 
+        description: 'Enter Request Number'
+        required: true
+      repository: 
+        description: 'Enter Repository'
+        default: ${{ github.repository }}
+        type: 'string'
+        required: true
+
   # pull_request:  
   #   types:
   #     - opened
@@ -10,16 +20,20 @@ on:
 jobs:
   auto_merge:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-      
+
+      - name: Input Parameters
+        run: |
+            echo "Request Number : ${{ inputs.pr_request_number }}"
+            echo "Repository : ${{ inputs.repository }}"
+            
       - name: Check PR Approval
         id: approval
         run: |
           # PR_NUMBER="${{ github.event.pull_request.number }}"
-          PR_NUMBER=1
+          PR_NUMBER="${{ inputs.pr_request_number }}"
           REVIEWS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
              "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews")
           echo "After Review 1 "
