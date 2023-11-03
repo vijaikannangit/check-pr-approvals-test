@@ -26,6 +26,7 @@ jobs:
         run: |
             echo "Request Number : ${{ inputs.pr_request_number }}"
             echo "Repository : ${{ inputs.repository }}"
+            echo "System repository : ${{ github.repository }}"
             
       - name: Check PR Approval
         id: approval
