@@ -33,7 +33,7 @@ jobs:
           # PR_NUMBER="${{ github.event.pull_request.number }}"
           PR_NUMBER="${{ inputs.pr_request_number }}"
           REVIEWS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-             "https://api.github.com/repos/${{ inputs.repository }}/pulls/${PR_NUMBER}/reviews")
+             "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews")
           echo "After Review 1 "
           if echo "${REVIEWS}" | jq -e '.[] | select(.state == "APPROVED")' > /dev/null; then
              echo "After Review 2 "
@@ -53,7 +53,7 @@ jobs:
       #   run: |
       #     PR_NUMBER="${{ inputs.pr_request_number }}"
       #     RESPONSE=$(curl -s -X PUT -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-      #       "https://api.github.com/repos/${{ inputs.repository }}/pulls/${PR_NUMBER}/merge")
+      #       "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}/merge")
       #     echo "Merge response: $RESPONSE"
       #   shell: bash
       #   env:
