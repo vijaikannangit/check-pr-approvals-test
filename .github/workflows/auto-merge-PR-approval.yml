@@ -8,8 +8,6 @@ on:
         required: true
       repository: 
         description: 'Enter Repository'
-        default: ${{ github.repository }}
-        type: 'string'
         required: true
 
   # pull_request:  
