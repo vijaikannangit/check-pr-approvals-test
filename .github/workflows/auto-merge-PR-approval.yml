@@ -1,10 +1,11 @@
 name: Auto-Merge PR on Approval
 
 on:
-  pull_request:
-    types:
-      - opened
-      - synchronize
+  workflow_dispatch
+  # pull_request:  
+  #   types:
+  #     - opened
+  #     - synchronize
 
 jobs:
   auto_merge:
@@ -17,13 +18,17 @@ jobs:
       - name: Check PR Approval
         id: approval
         run: |
-          PR_NUMBER="${{ github.event.pull_request.number }}"
+          # PR_NUMBER="${{ github.event.pull_request.number }}"
+          PR_NUMBER=1
           REVIEWS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
              "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews")
+          echo "After Review 1 "
           if echo "${REVIEWS}" | jq -e '.[] | select(.state == "APPROVED")' > /dev/null; then
+             echo "After Review 2 "
              echo "PR is approved."
              echo "::set-output name=approved::true"
           else
+             echo "After Review 3 "          
              echo "PR is not approved."
              echo "::set-output name=approved::false"
           fi
@@ -31,13 +36,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Merge PR
-        if: steps.approval.outputs.approved == 'true'
-        run: |
-          PR_NUMBER="${{ github.event.pull_request.number }}"
-          RESPONSE=$(curl -s -X PUT -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}/merge")
-          echo "Merge response: $RESPONSE"
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Merge PR
+      #   if: steps.approval.outputs.approved == 'true'
+      #   run: |
+      #     PR_NUMBER="${{ github.event.pull_request.number }}"
+      #     RESPONSE=$(curl -s -X PUT -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+      #       "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}/merge")
+      #     echo "Merge response: $RESPONSE"
+      #   shell: bash
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
